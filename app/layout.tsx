@@ -3,6 +3,8 @@
 import { Inter } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import './globals.css'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/react'
 
 const fontHeading = Inter({
   subsets: ['latin'],
@@ -29,6 +31,8 @@ export default function Layout({ children }: { children: ReactNode }) {
         )}
       >
         {children}
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )
