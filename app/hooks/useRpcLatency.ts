@@ -1,19 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { RPCResult, parseJsonConfig, updateFastestEndpoint } from '@/utils/rpcTest';
+import { RPCResult, updateFastestEndpoint } from '@/utils/rpcTest';
 
 export function useRpcLatency() {
   const [latencies, setLatencies] = useState<RPCResult[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const fetchLatencies = async () => {
+  const fetchLatencies = useCallback(async () => {
     if (typeof window === 'undefined') return; // Only run on client side
 
     const endpointsJson = process.env.NEXT_PUBLIC_RPC_ENDPOINTS;
-    if (!endpointsJson) return;
+    if (!endpointsJson) {
+      console.error('NEXT_PUBLIC_RPC_ENDPOINTS is not set');
+      return;
+    }
 
-    const endpoints = parseJsonConfig<{ name: string, url: string }>(endpointsJson);
+    let endpoints;
+    try {
+      endpoints = JSON.parse(endpointsJson);
+    } catch (error) {
+      console.error('Error parsing RPC_ENDPOINTS:', error);
+      return;
+    }
+
     const results: RPCResult[] = [];
 
     for (const endpoint of endpoints) {
@@ -42,14 +53,16 @@ export function useRpcLatency() {
 
     updateFastestEndpoint(sortedResults);
     setLatencies(sortedResults);
-  };
-
-  useEffect(() => {
-    fetchLatencies();
-    const interval = setInterval(fetchLatencies, 15000); // Update every 15 seconds
-
-    return () => clearInterval(interval);
+    setIsLoading(false);
   }, []);
 
-  return { latencies, refetch: fetchLatencies };
+  useEffect(() => {
+    fetchLatencies(); // Initial fetch
+
+    const interval = setInterval(fetchLatencies, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [fetchLatencies]);
+
+  return { latencies, isLoading, refetch: fetchLatencies };
 }

@@ -9,9 +9,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      borderColor: {
-        DEFAULT: 'hsl(var(--border))',
-      },
       fontFamily: {
         heading: ['var(--font-heading)', ...fontFamily.sans],
         body: ['var(--font-body)', ...fontFamily.sans]
