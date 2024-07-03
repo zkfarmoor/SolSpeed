@@ -59,7 +59,7 @@ export function useRpcLatency() {
   useEffect(() => {
     fetchLatencies(); // Initial fetch
 
-    const interval = setInterval(fetchLatencies, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchLatencies, 60000); // Update every 1 minute
 
     return () => clearInterval(interval);
   }, [fetchLatencies]);
